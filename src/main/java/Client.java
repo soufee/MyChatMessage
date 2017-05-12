@@ -9,10 +9,22 @@ import java.util.Scanner;
  */
 public class Client extends Thread {
     public static Connection connection;
+    Scanner scanner = new Scanner(System.in);
+    public static String message="";
+    public static Session session;
+    public static Destination destination;
+    public static MessageProducer producer;
+
     public Client() throws JMSException {
 
         connection = createConection();
-
+        connection.start();
+        session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+        destination = session.createQueue("MyQueue");
+        producer = session.createProducer(destination);
+        producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT); //ВАЖНО!
+        TextMessage textMessage = session.createTextMessage("привет");
+        producer.send(textMessage);
     }
 
     public Connection createConection() throws JMSException {
@@ -20,19 +32,13 @@ public class Client extends Thread {
         return activeMQConnectionFactory.createConnection();
     }
 
-    Scanner scanner = new Scanner(System.in);
-    String message="";
 
     @Override
     public void run() {
         try {
-        //   Connection connection = createConection();
-            connection.start();
-            Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-            Destination destination = session.createQueue("MyQueue");
-            MessageProducer producer = session.createProducer(destination);
-            producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT); //ВАЖНО!
-                       while (!(message.equals("exit"))) {
+            //   Connection connection = createConection();
+
+            while (!(message.equals("exit"))) {
                 message = scanner.nextLine();
                 TextMessage textMessage = session.createTextMessage(message);
                 producer.send(textMessage);

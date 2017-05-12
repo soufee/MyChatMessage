@@ -26,7 +26,15 @@ public class Server {
             messageConsumer = session.createConsumer(destination);
 
             Message message = messageConsumer.receive(5000);
-            System.out.println(((TextMessage) message).getText());
+            String mess = ((TextMessage) message).getText();
+            if (mess.equals("привет"))
+                listeners++;
+            System.out.println(mess);
+        if (mess.equals("exit"))
+            listeners--;
+
+            if (mess.equals("bigbang"))
+                listeners=0;
 
         } catch (JMSException e) {
             e.printStackTrace();
@@ -43,11 +51,12 @@ public class Server {
         Server consumer = new Server();
 
         while (listeners > 0) {
-            // System.out.println("Количество пользователей = "+listeners);
+
             try {
                 consumer.recieveMessage();
+
             } catch (Exception e) {
-                System.out.println("Количество участников чата " + listeners);
+
                 Thread.sleep(1000);
 
             }
